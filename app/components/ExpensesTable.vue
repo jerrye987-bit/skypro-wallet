@@ -44,138 +44,20 @@ interface Expense {
   amount: number;
 }
 
-const expenses = ref<Expense[]>([
-  {
-    id: 1,
-    description: "Пятерочка",
-    category: "Еда",
-    date: "03.07.2024",
-    amount: 3500,
-  },
-  {
-    id: 2,
-    description: "Яндекс.Такси",
-    category: "Транспорт",
-    date: "03.07.2024",
-    amount: 730,
-  },
-  {
-    id: 3,
-    description: "Аптека Вита",
-    category: "Другое",
-    date: "03.07.2024",
-    amount: 1200,
-  },
-  {
-    id: 4,
-    description: "Бургер Кинг",
-    category: "Еда",
-    date: "03.07.2024",
-    amount: 950,
-  },
-  {
-    id: 5,
-    description: "Деливери",
-    category: "Еда",
-    date: "02.07.2024",
-    amount: 1320,
-  },
-  {
-    id: 6,
-    description: "Кофейни №1",
-    category: "Еда",
-    date: "02.07.2024",
-    amount: 400,
-  },
-  {
-    id: 7,
-    description: "Бильярд",
-    category: "Развлечения",
-    date: "29.06.2024",
-    amount: 600,
-  },
-  {
-    id: 8,
-    description: "Перекресток",
-    category: "Еда",
-    date: "29.06.2024",
-    amount: 2360,
-  },
-  {
-    id: 9,
-    description: "Лукойл",
-    category: "Транспорт",
-    date: "29.06.2024",
-    amount: 1000,
-  },
-  {
-    id: 10,
-    description: "Летуаль",
-    category: "Другое",
-    date: "29.06.2024",
-    amount: 4500,
-  },
-  {
-    id: 11,
-    description: "Яндекс.Такси",
-    category: "Транспорт",
-    date: "28.06.2024",
-    amount: 320,
-  },
-  {
-    id: 12,
-    description: "Перекресток",
-    category: "Еда",
-    date: "28.06.2024",
-    amount: 1360,
-  },
-  {
-    id: 13,
-    description: "Деливери",
-    category: "Еда",
-    date: "28.06.2024",
-    amount: 2320,
-  },
-  {
-    id: 14,
-    description: "Вкусвилл",
-    category: "Еда",
-    date: "27.06.2024",
-    amount: 1220,
-  },
-  {
-    id: 15,
-    description: "Кофейни №1",
-    category: "Еда",
-    date: "27.06.2024",
-    amount: 920,
-  },
-  {
-    id: 16,
-    description: "Вкусвилл",
-    category: "Еда",
-    date: "26.06.2024",
-    amount: 840,
-  },
-  {
-    id: 17,
-    description: "Кофейни №1",
-    category: "Еда",
-    date: "26.06.2024",
-    amount: 920,
-  },
-]);
+const props = defineProps<{ expenses: Expense[] }>(); 
+
+const emit = defineEmits<{ (e: "delete", id: number): void }>();
 
 const deleteExpense = (id: number) => {
-  expenses.value = expenses.value.filter((e) => e.id !== id);
+  emit("delete", id);
 };
 </script>
 
 <style scoped>
 .table-card {
   background: #fff;
-  border-radius: 24px;
-  padding: 32px;
+  border-radius: 30px;
+  padding: 32px 32px 7px 34px;
   height: 100%;
 }
 
@@ -195,6 +77,7 @@ const deleteExpense = (id: number) => {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+  table-layout: fixed;
 }
 
 .table th {
@@ -205,6 +88,11 @@ const deleteExpense = (id: number) => {
   border-bottom: 1px solid #999999;
 }
 
+.table th:nth-child(1) { width: 173px; }
+.table th:nth-child(2) { width: 173px; }
+.table th:nth-child(3) { width: 174px; }
+.table th:nth-child(4) { width: 166px; }
+
 .table td {
   padding: 7px 32px;
 }
@@ -212,6 +100,11 @@ const deleteExpense = (id: number) => {
 .table tbody tr:first-child td {
   padding-top: 18px;
 }
+
+.table th:first-child,
+.table td:first-child { padding-left: 32px; }
+.table th:last-child,
+.table td:last-child { padding-right: 32px; }
 
 .table__cell--action {
   text-align: center;
