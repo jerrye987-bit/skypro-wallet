@@ -59,6 +59,7 @@ const deleteExpense = (id: number) => {
   border-radius: 30px;
   padding: 32px 32px 7px 34px;
   height: 100%;
+  box-shadow: 0px 20px 67px -12px #00000021;
 }
 
 .table-card__title {
@@ -73,29 +74,22 @@ const deleteExpense = (id: number) => {
   margin: 0 -32px;
 }
 
-/* сама полоса скролла */
+
 .table-card__scroll::-webkit-scrollbar {
-  width: 6px;   /* для вертикального */
-  /* height: 8px; — если нужен горизонтальный */
+  width: 6px;
 }
 
-/* дорожка, по которой бегает ползунок */
+
 .table-card__scroll::-webkit-scrollbar-track {
   background: #FFFFFF;
   border-radius: 3px;
 }
 
-/* ползунок */
 .table-card__scroll::-webkit-scrollbar-thumb {
   background: #D9D9D9;
   border-radius: 3px;
 }
 
-.table-card__scroll::-webkit-scrollbar-thumb:hover {
-  background: #D9D9D9;
-}
-
-/* убрать стрелочки на концах */
 .table-card__scroll::-webkit-scrollbar-button {
   display: none;
 }

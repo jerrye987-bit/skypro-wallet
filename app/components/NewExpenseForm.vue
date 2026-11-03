@@ -2,11 +2,12 @@
   <form class="form-card" @submit.prevent="addExpense">
     <h2 class="form-card__title">Новый расход</h2>
 
-    <label 
-      class="form-card__label" 
+    <label
+      class="form-card__label"
       for="expense-description"
-      :class="{ 'is-invalid': touched.description && errors.description }"  
-    >Описание</label>
+      :class="{ 'is-invalid': touched.description && errors.description }"
+      >Описание</label
+    >
     <input
       id="expense-description"
       v-model="form.description"
@@ -17,10 +18,11 @@
       @blur="touched.description = true"
     />
 
-    <span 
+    <span
       class="form-card__label"
-      :class="{ 'is-invalid': touched.category && errors.category }"  
-    >Категория</span>
+      :class="{ 'is-invalid': touched.category && errors.category }"
+      >Категория</span
+    >
     <div class="form-card__categories">
       <label
         v-for="category in categories"
@@ -41,34 +43,35 @@
       </label>
     </div>
 
-    <label 
-      class="form-card__label" 
+    <label
+      class="form-card__label"
       for="expense-date"
       :class="{ 'is-invalid': touched.date && errors.date }"
-    >Дата</label>
+      >Дата</label
+    >
     <div class="form-card__date-wrapper">
       <input
         id="expense-date"
         v-model="form.date"
         type="date"
         class="form-card__input"
-        :class="{ 
+        :class="{
           'form-card__input--empty': !form.date,
           'is-invalid': touched.date && errors.date,
         }"
         @blur="touched.date = true"
       />
-      <span 
-        v-if="!form.date" 
-        class="form-card__date-placeholder"
-      >Введите дату</span>
+      <span v-if="!form.date" class="form-card__date-placeholder"
+        >Введите дату</span
+      >
     </div>
 
-    <label 
-      class="form-card__label" 
+    <label
+      class="form-card__label"
       for="expense-amount"
       :class="{ 'is-invalid': touched.amount && errors.amount }"
-    >Сумма</label>
+      >Сумма</label
+    >
     <input
       id="expense-amount"
       v-model="form.amount"
@@ -79,11 +82,8 @@
       @blur="touched.amount = true"
     />
 
-    <button 
-      type="submit"
-      class="form-card__submit"
-      :disabled="!isFormValid"
-      >Добавить новый расход
+    <button type="submit" class="form-card__submit" :disabled="!isFormValid">
+      Добавить новый расход
     </button>
   </form>
 </template>
@@ -131,7 +131,7 @@ const errors = computed(() => ({
 }));
 
 const isFormValid = computed(() =>
-  Object.values(errors.value).every((hasError) => !hasError)
+  Object.values(errors.value).every((hasError) => !hasError),
 );
 
 const addExpense = () => {
@@ -165,6 +165,7 @@ const addExpense = () => {
   display: flex;
   flex-direction: column;
   max-width: 380px;
+  box-shadow: 0px 20px 67px -12px #00000021;
 }
 
 .form-card__title {
@@ -181,7 +182,7 @@ const addExpense = () => {
 
 .form-card__label.is-invalid::after {
   content: " *";
-  color: #F25050;
+  color: #f25050;
   font-weight: 700;
 }
 
@@ -206,8 +207,8 @@ const addExpense = () => {
 }
 
 .form-card__input.is-invalid {
-  background-color: #FFEBEB;
-  border-color: #F25050;
+  background-color: #ffebeb;
+  border-color: #f25050;
   outline: none;
 }
 
