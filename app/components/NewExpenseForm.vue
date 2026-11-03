@@ -2,15 +2,25 @@
   <form class="form-card" @submit.prevent="addExpense">
     <h2 class="form-card__title">Новый расход</h2>
 
-    <label class="form-card__label" for="expense-description">Описание</label>
+    <label 
+      class="form-card__label" 
+      for="expense-description"
+      :class="{ 'is-invalid': touched.description && errors.description }"  
+    >Описание</label>
     <input
+      id="expense-description"
       v-model="form.description"
       type="text"
       class="form-card__input"
+      :class="{ 'is-invalid': touched.description && errors.description }"
       placeholder="Введите описание"
+      @blur="touched.description = true"
     />
 
-    <span class="form-card__label">Категория</span>
+    <span 
+      class="form-card__label"
+      :class="{ 'is-invalid': touched.category && errors.category }"  
+    >Категория</span>
     <div class="form-card__categories">
       <label
         v-for="category in categories"
@@ -24,41 +34,63 @@
           name="category"
           :value="category.name"
           class="category-chip__input"
+          @change="touched.category = true"
         />
         <CategoryIcon :name="category.name" class="category-chip__icon" />
         {{ category.name }}
       </label>
     </div>
 
-    <label class="form-card__label" for="expense-date">Дата</label>
+    <label 
+      class="form-card__label" 
+      for="expense-date"
+      :class="{ 'is-invalid': touched.date && errors.date }"
+    >Дата</label>
     <div class="form-card__date-wrapper">
       <input
         id="expense-date"
         v-model="form.date"
         type="date"
         class="form-card__input"
-        :class="{ 'form-card__input--empty': !form.date }"
+        :class="{ 
+          'form-card__input--empty': !form.date,
+          'is-invalid': touched.date && errors.date,
+        }"
+        @blur="touched.date = true"
       />
-      <span v-if="!form.date" class="form-card__date-placeholder"
-        >Введите дату</span
-      >
+      <span 
+        v-if="!form.date" 
+        class="form-card__date-placeholder"
+      >Введите дату</span>
     </div>
 
-    <label class="form-card__label" for="expense-amount">Сумма</label>
+    <label 
+      class="form-card__label" 
+      for="expense-amount"
+      :class="{ 'is-invalid': touched.amount && errors.amount }"
+    >Сумма</label>
     <input
+      id="expense-amount"
       v-model="form.amount"
       type="number"
       class="form-card__input"
+      :class="{ 'is-invalid': touched.amount && errors.amount }"
       placeholder="Введите сумму"
+      @blur="touched.amount = true"
     />
 
-    <button type="submit" class="form-card__submit">
-      Добавить новый расход
+    <button 
+      type="submit"
+      class="form-card__submit"
+      :disabled="!isFormValid"
+      >Добавить новый расход
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
+import { reactive, computed } from "vue";
+
 interface ExpensePayload {
   description: string;
   category: string;
@@ -84,8 +116,27 @@ const form = reactive({
   amount: null as number | null,
 });
 
+const touched = reactive({
+  description: false,
+  category: false,
+  date: false,
+  amount: false,
+});
+
+const errors = computed(() => ({
+  description: form.description.trim() === "",
+  category: form.category === "",
+  date: form.date === "",
+  amount: form.amount === null || form.amount <= 0,
+}));
+
+const isFormValid = computed(() =>
+  Object.values(errors.value).every((hasError) => !hasError)
+);
+
 const addExpense = () => {
-  if (!form.description || !form.category || !form.date || form.amount === null) return;
+  if (!isFormValid.value) return;
+  if (form.amount === null) return;
 
   emit("add", {
     description: form.description,
@@ -98,8 +149,12 @@ const addExpense = () => {
   form.category = "";
   form.date = "";
   form.amount = null;
-};
 
+  touched.description = false;
+  touched.category = false;
+  touched.date = false;
+  touched.amount = false;
+};
 </script>
 
 <style scoped>
@@ -109,6 +164,7 @@ const addExpense = () => {
   padding: 32px 32px 32px 31px;
   display: flex;
   flex-direction: column;
+  max-width: 380px;
 }
 
 .form-card__title {
@@ -123,10 +179,16 @@ const addExpense = () => {
   margin-bottom: 16px;
 }
 
+.form-card__label.is-invalid::after {
+  content: " *";
+  color: #F25050;
+  font-weight: 700;
+}
+
 .form-card__input {
   width: 100%;
   padding: 12px 12px;
-  border: 1px solid #999999;
+  border: 0.5px solid #999999;
   border-radius: 6px;
   font-size: 12px;
   line-height: 100%;
@@ -137,6 +199,16 @@ const addExpense = () => {
 .form-card__input:focus {
   border-color: #7334ea;
   background-color: #f1ebfd;
+}
+
+.form-card__input--empty::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.form-card__input.is-invalid {
+  background-color: #FFEBEB;
+  border-color: #F25050;
+  outline: none;
 }
 
 .form-card__categories {
@@ -186,6 +258,11 @@ const addExpense = () => {
   background: #7360d6;
 }
 
+.form-card__submit:disabled {
+  background-color: #999999;
+  cursor: not-allowed;
+}
+
 .form-card__date-wrapper {
   position: relative;
   margin-bottom: 24px;
@@ -199,10 +276,6 @@ const addExpense = () => {
   color: #999;
   font-size: 12px;
   pointer-events: none;
-}
-
-.form-card__input--empty::-webkit-datetime-edit {
-  color: transparent;
 }
 
 .form-card__date-wrapper:focus-within .form-card__date-placeholder {
