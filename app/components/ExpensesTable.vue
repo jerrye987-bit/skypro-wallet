@@ -73,6 +73,39 @@ const deleteExpense = (id: number) => {
   margin: 0 -32px;
 }
 
+/* сама полоса скролла */
+.table-card__scroll::-webkit-scrollbar {
+  width: 6px;   /* для вертикального */
+  /* height: 8px; — если нужен горизонтальный */
+}
+
+/* дорожка, по которой бегает ползунок */
+.table-card__scroll::-webkit-scrollbar-track {
+  background: #FFFFFF;
+  border-radius: 3px;
+}
+
+/* ползунок */
+.table-card__scroll::-webkit-scrollbar-thumb {
+  background: #D9D9D9;
+  border-radius: 3px;
+}
+
+.table-card__scroll::-webkit-scrollbar-thumb:hover {
+  background: #D9D9D9;
+}
+
+/* убрать стрелочки на концах */
+.table-card__scroll::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* убрать уголок на стыке двух скроллбаров (если есть оба) */
+.table-card__scroll::-webkit-scrollbar-corner {
+  display: none;
+}
+
+
 .table {
   width: 100%;
   border-collapse: collapse;
