@@ -2,7 +2,7 @@
   <header class="header">
     <div class="header__inner">
       <NuxtLink to="/" class="header__logo">
-        <img src="/icons/logo.svg" alt="Skypro.Wallet" />
+        <img src="/icons/logo.svg" alt="Skypro.Wallet" >
       </NuxtLink>
       <nav class="header__nav">
         <NuxtLink to="/" class="header__link" data-text="Мои расходы"

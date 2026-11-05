@@ -16,7 +16,7 @@
       :class="{ 'is-invalid': touched.description && errors.description }"
       placeholder="Введите описание"
       @blur="touched.description = true"
-    />
+    >
 
     <span
       class="form-card__label"
@@ -37,7 +37,7 @@
           :value="category.name"
           class="category-chip__input"
           @change="touched.category = true"
-        />
+        >
         <CategoryIcon :name="category.name" class="category-chip__icon" />
         {{ category.name }}
       </label>
@@ -60,7 +60,7 @@
           'is-invalid': touched.date && errors.date,
         }"
         @blur="touched.date = true"
-      />
+      >
       <span v-if="!form.date" class="form-card__date-placeholder"
         >Введите дату</span
       >
@@ -80,7 +80,7 @@
       :class="{ 'is-invalid': touched.amount && errors.amount }"
       placeholder="Введите сумму"
       @blur="touched.amount = true"
-    />
+    >
 
     <button type="submit" class="form-card__submit" :disabled="!isFormValid">
       Добавить новый расход

@@ -1,7 +1,7 @@
 <template>
   <div class="auth">
     <div class="auth__logo">
-      <img src="/icons/logo.svg" alt="Skypro.Wallet" />
+      <img src="/icons/logo.svg" alt="Skypro.Wallet" >
     </div>
 
     <form class="auth__card" @submit.prevent="onSubmit">
@@ -16,7 +16,7 @@
           autocomplete="name"
           :placeholder="nameInvalid && !name ? 'Ваш Имя *' : 'Ваш Имя'"
           @blur="nameTouched = true"
-        />
+        >
         <span v-if="nameInvalid && name" class="auth__star-layer" aria-hidden="true">
           <span class="auth__star-ghost">{{ name }}</span><span class="auth__star">*</span>
         </span>
@@ -31,7 +31,7 @@
           autocomplete="email"
           :placeholder="emailInvalid && !email ? 'Эл. почта *' : 'Эл. почта'"
           @blur="emailTouched = true"
-        />
+        >
         <span v-if="emailInvalid && email" class="auth__star-layer" aria-hidden="true">
           <span class="auth__star-ghost">{{ email }}</span><span class="auth__star">*</span>
         </span>
@@ -46,7 +46,7 @@
           autocomplete="new-password"
           :placeholder="passwordInvalid && !password ? 'Пароль *' : 'Пароль'"
           @blur="passwordTouched = true"
-        />
+        >
         <span v-if="passwordInvalid && password" class="auth__star-layer" aria-hidden="true">
           <span class="auth__star-ghost">{{ '•'.repeat(password.length) }}</span><span class="auth__star">*</span>
         </span>

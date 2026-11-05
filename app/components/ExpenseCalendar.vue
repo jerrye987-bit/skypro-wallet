@@ -19,7 +19,7 @@
             >
               {{ cell.day }}
             </button>
-            <span v-else class="calendar__day calendar__day--blank"></span>
+            <span v-else class="calendar__day calendar__day--blank"/>
           </template>
         </div>
       </section>
@@ -41,7 +41,6 @@ type MonthBlock = {
   cells: DayCell[];
 };
 
-const { expenses } = useExpenses();
 const { selectedDate, selectedRange, rangeKeys } = useSelectedDate();
 
 const weekdays = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
@@ -74,10 +73,7 @@ const buildMonth = (first: Date): MonthBlock => {
   const offset = (new Date(year, month, 1).getDay() + 6) % 7;
   const lastDay = new Date(year, month + 1, 0).getDate();
   const selectedKey = dateKey(selectedDate.value);
-  const spentKeys = new Set(
-    expenses.value.map((e) => dateKey(parseDate(e.date))),
-  );
-
+  
   const cells: DayCell[] = [];
   for (let i = 0; i < offset; i++) {
     cells.push({ key: `b-${year}-${month}-${i}`, day: null });

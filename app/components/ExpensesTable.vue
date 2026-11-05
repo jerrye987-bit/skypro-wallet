@@ -10,7 +10,7 @@
             <th>Категория</th>
             <th>Дата</th>
             <th>Сумма</th>
-            <th></th>
+            <th/>
           </tr>
         </thead>
         <tbody>
@@ -25,7 +25,7 @@
                   src="/icons/bag.svg"
                   alt="Удалить"
                   class="table__delete-icon"
-                />
+                >
               </button>
             </td>
           </tr>
@@ -44,7 +44,7 @@ interface Expense {
   amount: number;
 }
 
-const props = defineProps<{ expenses: Expense[] }>(); 
+defineProps<{ expenses: Expense[] }>(); 
 
 const emit = defineEmits<{ (e: "delete", id: number): void }>();
 

@@ -12,7 +12,7 @@
             height: barHeight(sums[cat.name] ?? 0),
             background: cat.color,
           }"
-        ></div>
+        />
         <span class="chart__label">{{ cat.name }}</span>
       </div>
     </div>
@@ -20,8 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import type { Expense } from "~/types";
-
 const { expenses } = useExpenses();
 const { selectedDate, selectedRange, rangeKeys } = useSelectedDate();
 
