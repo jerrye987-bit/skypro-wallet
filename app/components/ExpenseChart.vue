@@ -43,7 +43,7 @@ const sums = computed(() => {
 const categories = [
   { name: "Еда", color: "#D9B6FF" },
   { name: "Транспорт", color: "#FFB53D" },
-  { name: "Жильё", color: "#6EE4FE" },
+  { name: "Жилье", color: "#6EE4FE" },
   { name: "Развлечения", color: "#B0AEFF" },
   { name: "Образование", color: "#BCEC30" },
   { name: "Другое", color: "#FFB9B8" },

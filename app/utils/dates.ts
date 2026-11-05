@@ -8,6 +8,15 @@ export const parseDate = (value: string): Date => {
   return new Date(year, month - 1, day);
 };
 
+// "2026-11-26" -> "26.11.2026"
+export const isoToRu = (iso: string): string => {
+  const [year, month, day] = iso.split("-");
+  if (!year || !month || !day) {
+    throw new Error(`Некорректная дата: ${iso}`);
+  }
+  return `${day}.${month}.${year}`;
+};
+
 // Date -> "10 июля 2024"
 export const formatDate = (date: Date): string =>
   new Intl.DateTimeFormat("ru-RU", {

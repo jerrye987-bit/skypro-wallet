@@ -141,7 +141,7 @@ const addExpense = () => {
   emit("add", {
     description: form.description,
     category: form.category,
-    date: form.date,
+    date: isoToRu(form.date),
     amount: form.amount,
   });
 
