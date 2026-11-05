@@ -7,27 +7,43 @@
     <form class="auth__card" @submit.prevent="onSubmit">
       <h1 class="auth__title">Вход</h1>
 
-      <input
-        v-model.trim="email"
-        class="auth__input"
-        :class="inputClass(emailTouched, isEmailValid)"
-        type="text"
-        placeholder="Эл. почта"
-        @blur="emailTouched = true"
-      />
-      <p v-if="emailError" class="auth__error">{{ emailError }}</p>
+      <div class="auth__field">
+        <input
+          v-model.trim="email"
+          class="auth__input"
+          :class="inputClass(emailTouched, isEmailValid)"
+          type="text" 
+          autocomplete="email"
+          :placeholder="emailInvalid && !email ? 'Эл. почта *' : 'Эл. почта'"
+          @blur="emailTouched = true"
+        />
+        <span v-if="emailInvalid && email" class="auth__star-layer" aria-hidden="true">
+          <span class="auth__star-ghost">{{ email }}</span><span class="auth__star">*</span>
+        </span>
+      </div>
 
-      <input
-        v-model="password"
-        class="auth__input"
-        :class="inputClass(passwordTouched, isPasswordValid)"
-        type="password"
-        placeholder="Пароль"
-        @blur="passwordTouched = true"
-      />
-      <p v-if="passwordError" class="auth__error">{{ passwordError }}</p>
+      <div class="auth__field">
+        <input
+          v-model="password"
+          class="auth__input"
+          :class="inputClass(passwordTouched, isPasswordValid)"
+          type="password" 
+          autocomplete="current-password"
+          :placeholder="passwordInvalid && !password ? 'Пароль *' : 'Пароль'"
+          @blur="passwordTouched = true"
+        />
+        <span v-if="passwordInvalid && password" class="auth__star-layer" aria-hidden="true">
+          <span class="auth__star-ghost">{{ '•'.repeat(password.length) }}</span><span class="auth__star">*</span>
+        </span>
+      </div>
 
-      <button class="auth__button" type="submit">Войти</button>
+      <p v-if="hasError" class="auth__error">
+        Упс! Введенные вами данные некорректны. Введите данные корректно и повторите попытку.
+      </p>
+
+      <button class="auth__button" type="submit" :disabled="isSubmitDisabled">
+        Войти
+      </button>
 
       <p class="auth__hint">Нужно зарегистрироваться?</p>
       <NuxtLink class="auth__link" to="/register"
@@ -48,34 +64,28 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isEmailValid = computed(() => emailPattern.test(email.value));
 const isPasswordValid = computed(() => password.value.length >= 6);
 
-const emailError = computed(() => {
-  if (!emailTouched.value || isEmailValid.value) return "";
-  return email.value
-    ? "Проверьте адрес эл. почты — кажется, в нём ошибка"
-    : "Введите эл. почту";
-});
+const emailInvalid = computed(() => emailTouched.value && !isEmailValid.value);
+const passwordInvalid = computed(() => passwordTouched.value && !isPasswordValid.value);
 
-const passwordError = computed(() => {
-  if (!passwordTouched.value || isPasswordValid.value) return "";
-  return password.value
-    ? "Пароль должен быть не короче 6 символов"
-    : "Введите пароль";
-});
+const hasError = computed(() => emailInvalid.value || passwordInvalid.value);
 
 const inputClass = (touched: boolean, valid: boolean) => ({
   "auth__input--valid": touched && valid,
   "auth__input--error": touched && !valid,
 });
 
+const isSubmitDisabled = computed(() => hasError.value);
+
 const onSubmit = () => {
   emailTouched.value = true;
   passwordTouched.value = true;
 
-  if (!isEmailValid.value || !isPasswordValid.value) return;
+  if (isSubmitDisabled.value) return;
 
-  // здесь будет запрос на вход — добавим, когда подключим бэкенд
-  navigateTo("/analysis");
+  // здесь будет запрос на вход
+  navigateTo("/");
 };
+
 </script>
 
 <style scoped>
@@ -120,7 +130,7 @@ const onSubmit = () => {
 .auth__input {
   width: 100%;
   height: 39px;
-  padding: 12px 12px;
+  padding: 0 12px;
   margin-bottom: 12px;
   border: 0.5px solid #999999;
   border-radius: 6px;
@@ -133,14 +143,24 @@ const onSubmit = () => {
   color: #999;
 }
 
-.auth__input--error {
-  border-color: #e53935;
+.auth__input.auth__input--error {
+  border-color: #f25050;
+  background-color: #ffebeb;
+}
+.auth__input.auth__input--error::placeholder {
+  color: #f25050;
+}
+
+.auth__input--valid {
+  border-color: #7334ea;
+  background: #f1ebfd;
 }
 
 .auth__error {
   font-size: 12px;
-  color: #e53935;
-  margin-top: 6px;
+  color: #f84d4d;
+  line-height: 150%;
+  letter-spacing: -1%;
 }
 
 .auth__button {
@@ -157,7 +177,12 @@ const onSubmit = () => {
 }
 
 .auth__button:hover {
-  background: #5f26c7;
+  background: #7334ea;
+}
+
+.auth__button:disabled {
+  background: #999999;
+  cursor: not-allowed;
 }
 
 .auth__hint {
@@ -175,5 +200,47 @@ const onSubmit = () => {
   color: #999;
   text-align: center;
   text-decoration: underline;
+}
+
+.auth__field {
+  position: relative;
+}
+
+.auth__star-layer {
+  position: absolute;
+  inset: 0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.auth__star-ghost {
+  visibility: hidden;
+  white-space: pre;
+}
+
+.auth__star {
+  color: #F84D4D;
+  margin-left: 5px;
+  transform: translateY(-10px);
+}
+
+.auth__input:-webkit-autofill,
+.auth__input:-webkit-autofill:hover,
+.auth__input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 60px #f1ebfd inset;
+  -webkit-text-fill-color: #000;
+}
+
+.auth__input.auth__input--valid:-webkit-autofill,
+.auth__input.auth__input--valid:-webkit-autofill:hover,
+.auth__input.auth__input--valid:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 60px #f1ebfd inset;
+  -webkit-text-fill-color: #000;
+  border-color: #7334ea;
 }
 </style>

@@ -15,10 +15,17 @@
           >Анализ расходов</NuxtLink
         >
       </nav>
-      <NuxtLink to="/login" class="header__link header__exit">Выйти</NuxtLink>
+      <button class="header__exit" type="button" @click="logout">Выйти</button>
     </div>
   </header>
 </template>
+
+<script setup lang="ts">
+const logout = () => {
+  navigateTo("/login");
+};
+
+</script>
 
 <style scoped>
 .header {
@@ -67,6 +74,17 @@
 
 .header__exit {
   font-weight: 600;
+  font-size: 14px;
+  color: #000;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.header__exit:hover {
+  color: #7334ea;
 }
 
 .header__link.router-link-active {
