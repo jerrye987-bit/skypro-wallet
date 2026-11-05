@@ -15,7 +15,7 @@
           >Анализ расходов</NuxtLink
         >
       </nav>
-      <a href="#" class="header__link header__exit">Выйти</a>
+      <NuxtLink to="/login" class="header__link header__exit">Выйти</NuxtLink>
     </div>
   </header>
 </template>
