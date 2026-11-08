@@ -19,6 +19,7 @@ import {
   addExpense as apiAddExpense,
   deleteExpense as apiDeleteExpense,
   mapTransaction,
+  sortByDate,
 } from "~/api/expenses";
 
 import type { Expense, ExpensePayload } from "~/types";
@@ -30,7 +31,9 @@ const isAuthed = ref(false);
 const addExpense = async (expense: ExpensePayload) => {
   try {
     const list = await apiAddExpense(expense);
-    expenses.value = Array.isArray(list) ? list.map(mapTransaction) : [];
+    expenses.value = Array.isArray(list)
+      ? sortByDate(list).map(mapTransaction)
+      : [];
   } catch (error) {
     serverError.value = error instanceof Error ? error.message : "Не удалось добавить расход";
   }
@@ -39,7 +42,9 @@ const addExpense = async (expense: ExpensePayload) => {
 const deleteExpense = async (id: string) => {
   try {
     const list = await apiDeleteExpense(id);
-    expenses.value = Array.isArray(list) ? list.map(mapTransaction) : [];
+    expenses.value = Array.isArray(list)
+      ? sortByDate(list).map(mapTransaction)
+      : [];
   } catch (error) {
     serverError.value = error instanceof Error ? error.message : "Не удалось удалить расход";
   }
@@ -55,7 +60,9 @@ onMounted(async () => {
 
   try {
     const list = await getExpenses();
-    expenses.value = Array.isArray(list) ? list.map(mapTransaction) : [];
+    expenses.value = Array.isArray(list)
+      ? sortByDate(list).map(mapTransaction)
+      : [];
   } catch (error) {
     serverError.value = error instanceof Error ? error.message : "Не удалось загрузить расходы";
   }

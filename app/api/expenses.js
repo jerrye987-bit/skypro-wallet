@@ -86,6 +86,12 @@ export function mapTransaction(t) {
   }
 }
 
+// Сортировка расходов по датам
+export const sortByDate = (list) =>
+  [...list].sort(
+    (a, b) => new Date(b.date) - new Date(a.date),
+  );
+
 // Получить транзакции за период (start и end — объекты Date)
 export async function getExpensesByPeriod(start, end) {
   const response = await fetch(`${BASE_URL}/period`, {
