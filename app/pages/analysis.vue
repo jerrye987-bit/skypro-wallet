@@ -1,15 +1,30 @@
 <template>
   <div class="page">
-    <AppHeader />
-    <main class="main">
-      <h1 class="title">Анализ расходов</h1>
-      <div class="content">
-        <PeriodCard />
-        <ExpenseChart />
-      </div>
-    </main>
+    <div v-if="isAuthed">
+      <AppHeader />
+      <main class="main">
+        <h1 class="title">Анализ расходов</h1>
+        <div class="content">
+          <PeriodCard />
+          <ExpenseChart />
+        </div>
+      </main>
+    </div>
   </div>
 </template>
+
+<script setup lang="ts">
+  const isAuthed = ref(false);
+
+  onMounted(() => {
+    const savedToken = localStorage.getItem("token");
+    if (!savedToken) {
+      navigateTo("/login");
+      return;
+    }
+    isAuthed.value = true;
+  });
+</script>
 
 <style scoped>
 .main {
