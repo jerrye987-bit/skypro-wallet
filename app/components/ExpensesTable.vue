@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 interface Expense {
-  id: number;
+  id: string;
   description: string;
   category: string;
   date: string;
@@ -46,9 +46,9 @@ interface Expense {
 
 defineProps<{ expenses: Expense[] }>(); 
 
-const emit = defineEmits<{ (e: "delete", id: number): void }>();
+const emit = defineEmits<{ (e: "delete", id: string): void }>();
 
-const deleteExpense = (id: number) => {
+const deleteExpense = (id: string) => {
   emit("delete", id);
 };
 </script>
