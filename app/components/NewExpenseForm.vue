@@ -82,7 +82,7 @@
       @blur="touched.amount = true"
     >
 
-    <button type="submit" class="form-card__submit" :disabled="!isFormValid">
+    <button type="submit" class="form-card__submit" :disabled="!isFormValid || props.isSubmitting">
       Добавить новый расход
     </button>
   </form>
@@ -104,6 +104,7 @@ const categories = [
   { name: "Другое", key: "others" },
 ];
 
+const props = defineProps<{ isSubmitting?: boolean }>();
 
 const form = reactive({
   description: "",

@@ -5,8 +5,14 @@
       <main class="main">
         <h1 class="title">Мои расходы</h1>
         <div class="content">
-          <ExpensesTable :expenses="expenses" @delete="deleteExpense" />
-          <NewExpenseForm @add="addExpense" />
+          <div class="table-wrap">
+            <p v-if="isLoading" class="status">Загружаем расходы…</p>
+            <p v-else-if="serverError" class="status status--error">
+              {{ serverError }}
+            </p>
+            <ExpensesTable v-else :expenses="expenses" @delete="deleteExpense" />
+          </div>
+          <NewExpenseForm :is-submitting="isSubmitting" @add="addExpense" />
         </div>
       </main>
     </div>
@@ -24,18 +30,26 @@ import {
 
 import type { Expense, ExpensePayload } from "~/types";
 
+const isLoading = ref(false);
+const isSubmitting = ref(false);
+
 const expenses = ref<Expense[]>([]);
 const serverError = ref("");
 const isAuthed = ref(false);
 
 const addExpense = async (expense: ExpensePayload) => {
+  isSubmitting.value = true;
   try {
     const list = await apiAddExpense(expense);
     expenses.value = Array.isArray(list)
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-    serverError.value = error instanceof Error ? error.message : "Не удалось добавить расход";
+    serverError.value = error instanceof Error
+      ? error.message
+      : "Не удалось добавить расход";
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
@@ -58,15 +72,21 @@ onMounted(async () => {
   }
   isAuthed.value = true;
 
+  isLoading.value = true;
   try {
     const list = await getExpenses();
     expenses.value = Array.isArray(list)
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-    serverError.value = error instanceof Error ? error.message : "Не удалось загрузить расходы";
+    serverError.value = error instanceof Error
+      ? error.message
+      : "Не удалось загрузить расходы";
+  } finally {
+    isLoading.value = false;
   }
 });
+
 
 </script>
 
@@ -88,6 +108,17 @@ onMounted(async () => {
   gap: 34px;
   align-items: stretch;
 }
+
+.status {
+  padding: 24px 0;
+  color: #666666;
+  font-size: 16px;
+}
+
+.status--error {
+  color: #d92d20;
+}
+
 
 @media (max-width: 900px) {
   .content {

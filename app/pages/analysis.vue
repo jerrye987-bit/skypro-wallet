@@ -6,7 +6,14 @@
         <h1 class="title">Анализ расходов</h1>
         <div class="content">
           <PeriodCard />
-          <ExpenseChart :expenses="expenses" />
+          <div class="chart-wrap">
+            <p v-if="isLoading" class="status">Загружаем расходы…</p>
+            <p v-else-if="serverError" class="status status--error">
+              {{ serverError }}
+            </p>
+            <ExpenseChart v-else-if="expenses.length" :expenses="expenses" />
+            <p v-else class="status">За выбранный период расходов нет</p>
+          </div>
         </div>
       </main>
     </div>
@@ -19,9 +26,9 @@ import { getExpensesByPeriod, mapTransaction } from "~/api/expenses";
 import type { Expense } from "~/types";
 
 const expenses = ref<Expense[]>([]);
-const isLoading = ref(true);
-const serverError = ref("");
 const isAuthed = ref(false);
+const isLoading = ref(false);
+const serverError = ref("");
 
 const { selectedRange, selectedDate } = useSelectedDate();
 
@@ -79,6 +86,20 @@ watch([selectedRange, selectedDate], loadPeriod);
   grid-template-columns: 379px 1fr;
   gap: 32px;
   align-items: stretch;
+}
+
+.chart-wrap {
+  min-height: 300px; /* держит высоту колонки, чтобы график не прыгал */
+}
+
+.status {
+  padding: 24px 0;
+  color: #666666;
+  font-size: 16px;
+}
+
+.status--error {
+  color: #d92d20;
 }
 
 @media (max-width: 900px) {
