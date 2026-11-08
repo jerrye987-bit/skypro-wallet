@@ -1,11 +1,12 @@
+import { formatDate, dateToApi, isoDateToApi } from '~/utils/dates'
+
 const BASE_URL = 'https://wedev-api.sky.pro/api/transactions'
 
 /** @type {Record<string, string>} */
-
 export const CATEGORY_LABELS = {
   food: 'Еда',
   transport: 'Транспорт',
-  housing: 'Жильё',
+  housing: 'Жилье',
   joy: 'Развлечения',
   education: 'Образование',
   others: 'Другое',
@@ -47,12 +48,6 @@ export async function getExpenses({ sortBy, filterBy } = {}) {
   return Array.isArray(data) ? data : data.data || []
 }
 
-// Превращаем дату из input type="date" (2025-06-01) в формат API (6-1-2025)
-function formatDateToApi(date) {
-  const [year, month, day] = String(date).split('-')
-  return `${Number(month)}-${Number(day)}-${year}`
-}
-
 // Добавить расход; сервер возвращает обновлённый список транзакций
 export async function addExpense({ description, category, amount, date }) {
   const response = await fetch(BASE_URL, {
@@ -62,7 +57,7 @@ export async function addExpense({ description, category, amount, date }) {
       description,
       sum: Number(amount),
       category,
-      date: formatDateToApi(date),
+      date: isoDateToApi(date),
     }),
   })
   const data = await handleResponse(response)
@@ -79,3 +74,29 @@ export async function deleteExpense(id) {
   const data = await handleResponse(response)
   return extractList(data)
 }
+
+// Серверная запись -> формат для таблицы и графика
+export function mapTransaction(t) {
+  return {
+    id: t._id,
+    description: t.description,
+    category: CATEGORY_LABELS[t.category] || t.category,
+    amount: t.sum,
+    date: formatDate(new Date(t.date)),
+  }
+}
+
+// Получить транзакции за период (start и end — объекты Date)
+export async function getExpensesByPeriod(start, end) {
+  const response = await fetch(`${BASE_URL}/period`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      start: dateToApi(start),
+      end: dateToApi(end),
+    }),
+  })
+  const data = await handleResponse(response)
+  return extractList(data)
+}
+

@@ -20,19 +20,17 @@
 </template>
 
 <script setup lang="ts">
-const { expenses } = useExpenses();
-const { selectedDate, selectedRange, rangeKeys } = useSelectedDate();
+import type { Expense } from "~/types";
 
-const periodExpenses = computed(() =>
-  expenses.value.filter((e) =>
-    rangeKeys.value.has(dateKey(parseDate(e.date)))
-  )
-);
+const props = defineProps<{ expenses: Expense[] }>();
 
+const { selectedRange, selectedDate } = useSelectedDate();
+
+// Данные уже за выбранный период — просто суммируем по категориям
 const sums = computed(() => {
   const result: Record<string, number> = {};
   for (const cat of categories) result[cat.name] = 0;
-  for (const e of periodExpenses.value) {
+  for (const e of props.expenses) {
     result[e.category] = (result[e.category] ?? 0) + e.amount;
   }
   return result;
@@ -55,7 +53,8 @@ const maxSum = computed(() =>
   Math.max(...Object.values(sums.value), 1)
 );
 
-const barHeight = (sum: number) => `${Math.round((sum / maxSum.value) * 328) || 2}px`;
+const barHeight = (sum: number) =>
+  `${Math.round((sum / maxSum.value) * 328) || 2}px`;
 
 const periodLabel = computed(() => {
   if (selectedRange.value.length < 2) {
@@ -71,6 +70,7 @@ const periodLabel = computed(() => {
 const formatMoney = (value: number) =>
   `${new Intl.NumberFormat("ru-RU").format(value)} ₽`;
 </script>
+
 
 
 <style scoped>

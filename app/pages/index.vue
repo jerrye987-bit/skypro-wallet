@@ -18,50 +18,19 @@ import {
   getExpenses,
   addExpense as apiAddExpense,
   deleteExpense as apiDeleteExpense,
-  CATEGORY_LABELS,
+  mapTransaction,
 } from "~/api/expenses";
+
+import type { Expense, ExpensePayload } from "~/types";
 
 const expenses = ref<Expense[]>([]);
 const serverError = ref("");
 const isAuthed = ref(false);
 
-interface ApiTransaction {
-  _id: string;
-  description: string;
-  category: string;
-  date: string;
-  sum: number;
-}
-
-const mapExpense = (t: ApiTransaction) => ({
-  id: t._id,
-  description: t.description,
-  category: CATEGORY_LABELS[t.category] || t.category,
-  amount: t.sum,
-  date: formatDate(new Date(t.date)),
-});
-
-interface ExpensePayload {
-  description: string;
-  category: string;
-  date: string;
-  amount: number;
-}
-
-interface Expense {
-  id: string;
-  description: string;
-  category: string;
-  date: string;
-  amount: number;
-}
-
 const addExpense = async (expense: ExpensePayload) => {
   try {
     const list = await apiAddExpense(expense);
-    if (Array.isArray(list)) {
-      expenses.value = list.map(mapExpense);
-    }
+    expenses.value = Array.isArray(list) ? list.map(mapTransaction) : [];
   } catch (error) {
     serverError.value = error instanceof Error ? error.message : "Не удалось добавить расход";
   }
@@ -70,16 +39,13 @@ const addExpense = async (expense: ExpensePayload) => {
 const deleteExpense = async (id: string) => {
   try {
     const list = await apiDeleteExpense(id);
-    if (Array.isArray(list)) {
-      expenses.value = list.map(mapExpense);
-    }
+    expenses.value = Array.isArray(list) ? list.map(mapTransaction) : [];
   } catch (error) {
     serverError.value = error instanceof Error ? error.message : "Не удалось удалить расход";
   }
 };
 
-
-onMounted(() => {
+onMounted(async () => {
   const savedToken = localStorage.getItem("token");
   if (!savedToken) {
     navigateTo("/login");
@@ -87,10 +53,14 @@ onMounted(() => {
   }
   isAuthed.value = true;
 
-  getExpenses()
-    .then((list) => (expenses.value = Array.isArray(list) ? list.map(mapExpense) : []))
-    .catch(() => (serverError.value = "Не удалось загрузить расходы"));
+  try {
+    const list = await getExpenses();
+    expenses.value = Array.isArray(list) ? list.map(mapTransaction) : [];
+  } catch (error) {
+    serverError.value = error instanceof Error ? error.message : "Не удалось загрузить расходы";
+  }
 });
+
 </script>
 
 

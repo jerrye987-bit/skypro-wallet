@@ -91,12 +91,7 @@
 <script setup lang="ts">
 import { reactive, computed } from "vue";
 
-interface ExpensePayload {
-  description: string;
-  category: string;
-  date: string;
-  amount: number;
-}
+import type { ExpensePayload } from "~/types";
 
 const emit = defineEmits<{ (e: "add", expense: ExpensePayload): void }>();
 

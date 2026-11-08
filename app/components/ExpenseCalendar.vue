@@ -14,7 +14,7 @@
             <button
               v-if="cell.day"
               class="calendar__day"
-              :class="{ 'calendar__day--selected': inRange(cell) }"
+              :class="{ 'calendar__day--selected': inRange(cell) || cell.isSelected }"
               @click="select(cell)"
             >
               {{ cell.day }}
@@ -48,7 +48,7 @@ const weekdays = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
 const firstMonth = ref(
   new Date(
     selectedDate.value.getFullYear(),
-    selectedDate.value.getMonth() - 1,
+    selectedDate.value.getMonth(),
     1,
   ),
 );

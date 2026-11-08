@@ -1,5 +1,5 @@
 export const useSelectedDate = () => {
-  const selectedDate = useState<Date>("selectedDate", () => new Date(2024, 6, 3));
+  const selectedDate = useState<Date>("selectedDate", () => new Date());
   const selectedRange = useState<Date[]>("selectedRange", () => []);
 
   const sortedRange = computed(() =>

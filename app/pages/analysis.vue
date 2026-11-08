@@ -6,7 +6,7 @@
         <h1 class="title">Анализ расходов</h1>
         <div class="content">
           <PeriodCard />
-          <ExpenseChart />
+          <ExpenseChart :expenses="expenses" />
         </div>
       </main>
     </div>
@@ -14,17 +14,54 @@
 </template>
 
 <script setup lang="ts">
-  const isAuthed = ref(false);
+import { getExpensesByPeriod, mapTransaction } from "~/api/expenses";
 
-  onMounted(() => {
-    const savedToken = localStorage.getItem("token");
-    if (!savedToken) {
-      navigateTo("/login");
-      return;
-    }
-    isAuthed.value = true;
-  });
+import type { Expense } from "~/types";
+
+const expenses = ref<Expense[]>([]);
+const isLoading = ref(true);
+const serverError = ref("");
+const isAuthed = ref(false);
+
+const { selectedRange, selectedDate } = useSelectedDate();
+
+// Определяем границы периода: диапазон из календаря или один день
+const getPeriod = () => {
+  if (selectedRange.value.length === 2) {
+    const sorted = [...selectedRange.value].sort((a, b) => +a - +b);
+    return { start: sorted[0], end: sorted[1] };
+  }
+  const single = selectedRange.value[0] ?? selectedDate.value;
+  return { start: single, end: single };
+};
+
+const loadPeriod = async () => {
+  const { start, end } = getPeriod();
+  isLoading.value = true;
+  try {
+    const list = await getExpensesByPeriod(start, end);
+    expenses.value = Array.isArray(list) ? list.map(mapTransaction) : [];
+  } catch (error) {
+    serverError.value = error instanceof Error ? error.message : "Не удалось загрузить расходы";
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(async () => {
+  const savedToken = localStorage.getItem("token");
+  if (!savedToken) {
+    navigateTo("/login");
+    return;
+  }
+  isAuthed.value = true;
+  await loadPeriod();
+});
+
+// Перевыбрали дату или диапазон в календаре — перезагружаем данные
+watch([selectedRange, selectedDate], loadPeriod);
 </script>
+
 
 <style scoped>
 .main {

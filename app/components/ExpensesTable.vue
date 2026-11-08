@@ -36,13 +36,7 @@
 </template>
 
 <script setup lang="ts">
-interface Expense {
-  id: string;
-  description: string;
-  category: string;
-  date: string;
-  amount: number;
-}
+import type { Expense } from "~/types";
 
 defineProps<{ expenses: Expense[] }>(); 
 
