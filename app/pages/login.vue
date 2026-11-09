@@ -40,6 +40,7 @@
       <p v-if="hasError" class="auth__error">
         Упс! Введенные вами данные некорректны. Введите данные корректно и повторите попытку.
       </p>
+      <p v-if="serverError" class="auth__error">{{ serverError }}</p>
 
       <button class="auth__button" type="submit" :disabled="isSubmitDisabled">
         Войти
@@ -63,7 +64,7 @@ const passwordTouched = ref(false);
 const serverError = ref("");
 const isSubmitting = ref(false);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 const isEmailValid = computed(() => emailPattern.test(email.value));
 const isPasswordValid = computed(() => password.value.length >= 6);
@@ -100,6 +101,8 @@ const onSubmit = async () => {
       serverError.value = error instanceof Error
         ? error.message
         : "Неверный логин или пароль";
+    } finally {
+      isSubmitting.value = false;
     }
 };
 </script>

@@ -95,7 +95,7 @@ const passwordTouched = ref(false);
 const serverError = ref("");
 const isSubmitting = ref(false);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 const isNameValid = computed(() => name.value.trim().length > 0);
 const isEmailValid = computed(() => emailPattern.test(email.value));

@@ -4,7 +4,11 @@ const BASE_URL = "https://wedev-api.sky.pro/api/user";
 async function handleResponse(response) {
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Что-то пошло не так. Попробуйте позже");
+    const message =
+      (typeof data.error === "string" && data.error) ||
+      data.message ||
+      "Что-то пошло не так. Попробуйте позже";
+    throw new Error(message);
   }
   return data;
 }
