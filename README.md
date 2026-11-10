@@ -1,75 +1,40 @@
-# Nuxt Minimal Starter
+# Skypro.Wallet
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Учебный проект: веб-приложение для учёта личных расходов.
 
-## Setup
+Пользователь регистрируется, добавляет траты с категорией и датой,
+просматривает их в таблице, а также анализирует траты за период на графике.
 
-Make sure to install dependencies:
+## Стек
+
+- **Vue 3** + **Nuxt 4** — SPA-приложение с роутингом
+- **TypeScript** в компонентах и композаблах
+- **CSS** без фреймворков — стили по макету из Figma.
+  Ссылка на упрощенный макет для 1 человека https://www.figma.com/design/0VGdmLW5R7GGfE5X3EcMqP/Skypro.Wallet--Copy-?node-id=1-4&p=f&t=m96jBPqVBXBLTNZW-0
+
+## Возможности
+
+- Регистрация и вход (токен хранится в localStorage)
+- Добавление расхода: описание, категория, сумма, дата
+- Список трат
+- Удаление расхода
+- Анализ трат за выбранный период с визуализацией
+- Понятные сообщения об ошибках: валидация форм, ошибки сервера,
+  отсутствие соединения
+
+## Архитектура
+
+- `api/client.js` — единый HTTP-клиент: авторизационные заголовки,
+  разбор ответов и перевод сетевых сбоев в понятные сообщения
+- `api/auth.js`, `api/expenses.js` — работа с конкретными эндпоинтами
+- `composables/` — переиспользуемая логика: форма авторизации,
+  выход из приложения
+- `pages/`, `components/` — страницы и UI-компоненты
+
+## Запуск
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
 npm run dev
 
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
