@@ -6,20 +6,27 @@
       }}</span>
     </div>
 
-    <div class="calendar__scroll" @scroll="onScroll">
-      <section v-for="m in months" :key="m.key" class="calendar__month">
+    <div ref="scrollEl" class="calendar__scroll" @scroll="onScroll">
+      <section
+        v-for="m in months"
+        :key="m.key"
+        class="calendar__month"
+        :data-month="m.key"
+      >
         <h3 class="calendar__month-name">{{ m.label }}</h3>
         <div class="calendar__days">
           <template v-for="cell in m.cells" :key="cell.key">
             <button
               v-if="cell.day"
               class="calendar__day"
-              :class="{ 'calendar__day--selected': inRange(cell) }"
+              :class="{
+                'calendar__day--selected': inRange(cell) || cell.isSelected,
+              }"
               @click="select(cell)"
             >
               {{ cell.day }}
             </button>
-            <span v-else class="calendar__day calendar__day--blank"/>
+            <span v-else class="calendar__day calendar__day--blank" />
           </template>
         </div>
       </section>
@@ -45,20 +52,14 @@ const { selectedDate, selectedRange, rangeKeys } = useSelectedDate();
 
 const weekdays = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
 
-const firstMonth = ref(
-  new Date(
-    selectedDate.value.getFullYear(),
-    selectedDate.value.getMonth() - 1,
-    1,
-  ),
-);
-const lastMonth = ref(
-  new Date(
-    selectedDate.value.getFullYear(),
-    selectedDate.value.getMonth() + 1,
-    1,
-  ),
-);
+const scrollEl = ref<HTMLElement | null>(null);
+
+const now = new Date();
+
+const currentMonthKey = `${now.getFullYear()}-${now.getMonth()}`;
+
+const firstMonth = ref(new Date(now.getFullYear(), now.getMonth() - 3, 1));
+const lastMonth = ref(new Date(now.getFullYear(), now.getMonth() + 1, 1));
 
 const buildMonth = (first: Date): MonthBlock => {
   const year = first.getFullYear();
@@ -73,7 +74,7 @@ const buildMonth = (first: Date): MonthBlock => {
   const offset = (new Date(year, month, 1).getDay() + 6) % 7;
   const lastDay = new Date(year, month + 1, 0).getDate();
   const selectedKey = dateKey(selectedDate.value);
-  
+
   const cells: DayCell[] = [];
   for (let i = 0; i < offset; i++) {
     cells.push({ key: `b-${year}-${month}-${i}`, day: null });
@@ -106,8 +107,34 @@ const months = computed<MonthBlock[]>(() => {
   return blocks;
 });
 
+const minMonth = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+
+onMounted(() => {
+  const el = scrollEl.value;
+  const current = el?.querySelector(`[data-month="${currentMonthKey}"]`);
+  if (!el || !current) return;
+
+  const elRect = el.getBoundingClientRect();
+  const curRect = current.getBoundingClientRect();
+  el.scrollTop = curRect.top - elRect.top + el.scrollTop;
+});
+
 const onScroll = (event: Event) => {
   const el = event.target as HTMLElement;
+
+  if (el.scrollTop <= 0 && firstMonth.value > minMonth) {
+    const prevHeight = el.scrollHeight;
+    firstMonth.value = new Date(
+      firstMonth.value.getFullYear(),
+      firstMonth.value.getMonth() - 1,
+      1,
+    );
+    nextTick(() => {
+      el.scrollTop += el.scrollHeight - prevHeight;
+    });
+    return;
+  }
+
   if (el.scrollTop + el.clientHeight >= el.scrollHeight - 50) {
     lastMonth.value = new Date(
       lastMonth.value.getFullYear(),
@@ -126,7 +153,10 @@ const select = (cell: DayCell) => {
     const start = selectedRange.value[0];
     if (!start) return;
 
-    selectedRange.value = cell.date < start ? [cell.date] : [start, cell.date];
+    selectedRange.value =
+      dateKey(cell.date) < dateKey(start)
+        ? [cell.date, start]
+        : [start, cell.date];
   } else {
     selectedRange.value = [cell.date];
   }
@@ -135,8 +165,6 @@ const select = (cell: DayCell) => {
 
 const inRange = (cell: DayCell) =>
   !!cell.date && rangeKeys.value.has(dateKey(cell.date));
-
-
 </script>
 
 <style scoped>

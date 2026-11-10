@@ -1,5 +1,12 @@
 export interface Expense {
-  id: number;
+  id: string;
+  description: string;
+  category: string;
+  date: string;
+  amount: number;
+}
+
+export interface ExpensePayload {
   description: string;
   category: string;
   date: string;

@@ -21,10 +21,12 @@
 </template>
 
 <script setup lang="ts">
+
 const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userName");
   navigateTo("/login");
 };
-
 </script>
 
 <style scoped>

@@ -17,8 +17,13 @@
           :placeholder="nameInvalid && !name ? 'Ваш Имя *' : 'Ваш Имя'"
           @blur="nameTouched = true"
         >
-        <span v-if="nameInvalid && name" class="auth__star-layer" aria-hidden="true">
-          <span class="auth__star-ghost">{{ name }}</span><span class="auth__star">*</span>
+        <span
+          v-if="nameInvalid && name"
+          class="auth__star-layer"
+          aria-hidden="true"
+        >
+          <span class="auth__star-ghost">{{ name }}</span
+          ><span class="auth__star">*</span>
         </span>
       </div>
 
@@ -32,8 +37,13 @@
           :placeholder="emailInvalid && !email ? 'Эл. почта *' : 'Эл. почта'"
           @blur="emailTouched = true"
         >
-        <span v-if="emailInvalid && email" class="auth__star-layer" aria-hidden="true">
-          <span class="auth__star-ghost">{{ email }}</span><span class="auth__star">*</span>
+        <span
+          v-if="emailInvalid && email"
+          class="auth__star-layer"
+          aria-hidden="true"
+        >
+          <span class="auth__star-ghost">{{ email }}</span
+          ><span class="auth__star">*</span>
         </span>
       </div>
 
@@ -47,14 +57,21 @@
           :placeholder="passwordInvalid && !password ? 'Пароль *' : 'Пароль'"
           @blur="passwordTouched = true"
         >
-        <span v-if="passwordInvalid && password" class="auth__star-layer" aria-hidden="true">
-          <span class="auth__star-ghost">{{ '•'.repeat(password.length) }}</span><span class="auth__star">*</span>
+        <span
+          v-if="passwordInvalid && password"
+          class="auth__star-layer"
+          aria-hidden="true"
+        >
+          <span class="auth__star-ghost">{{ "•".repeat(password.length) }}</span
+          ><span class="auth__star">*</span>
         </span>
       </div>
 
       <p v-if="hasError" class="auth__error">
-        Упс! Введенные вами данные некорректны. Введите данные корректно и повторите попытку.
+        Упс! Введенные вами данные некорректны. Введите данные корректно и
+        повторите попытку.
       </p>
+      <p v-if="serverError" class="auth__error">{{ serverError }}</p>
 
       <button class="auth__button" type="submit" :disabled="isSubmitDisabled">
         Зарегистрироваться
@@ -67,14 +84,18 @@
 </template>
 
 <script setup lang="ts">
+import { signUp } from "~/api/auth";
+
 const name = ref("");
 const email = ref("");
 const password = ref("");
 const nameTouched = ref(false);
 const emailTouched = ref(false);
 const passwordTouched = ref(false);
+const serverError = ref("");
+const isSubmitting = ref(false);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 const isNameValid = computed(() => name.value.trim().length > 0);
 const isEmailValid = computed(() => emailPattern.test(email.value));
@@ -82,26 +103,45 @@ const isPasswordValid = computed(() => password.value.length >= 6);
 
 const nameInvalid = computed(() => nameTouched.value && !isNameValid.value);
 const emailInvalid = computed(() => emailTouched.value && !isEmailValid.value);
-const passwordInvalid = computed(() => passwordTouched.value && !isPasswordValid.value);
+const passwordInvalid = computed(
+  () => passwordTouched.value && !isPasswordValid.value,
+);
 
-const hasError = computed(() => nameInvalid.value || emailInvalid.value || passwordInvalid.value);
+const hasError = computed(
+  () => nameInvalid.value || emailInvalid.value || passwordInvalid.value,
+);
 
 const inputClass = (touched: boolean, valid: boolean) => ({
   "auth__input--valid": touched && valid,
   "auth__input--error": touched && !valid,
 });
 
-const isSubmitDisabled = computed(() => hasError.value);
+const isSubmitDisabled = computed(() => hasError.value || isSubmitting.value);
 
-const onSubmit = () => {
+const onSubmit = async () => {
   nameTouched.value = true;
   emailTouched.value = true;
   passwordTouched.value = true;
+  serverError.value = "";
 
   if (hasError.value) return;
 
-   // здесь будет запрос на регистрацию
-  navigateTo("/");
+  isSubmitting.value = true;
+  try {
+    const user = await signUp({
+      login: email.value,
+      name: name.value,
+      password: password.value,
+    });
+    localStorage.setItem("token", user.token);
+    localStorage.setItem("userName", user.name);
+    await navigateTo("/");
+  } catch (error) {
+    serverError.value =
+      error instanceof Error ? error.message : "Не удалось зарегистрироваться";
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 </script>
 
@@ -241,7 +281,7 @@ const onSubmit = () => {
 }
 
 .auth__star {
-  color: #F84D4D;
+  color: #f84d4d;
   margin-left: 5px;
   transform: translateY(-10px);
 }

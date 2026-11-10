@@ -28,13 +28,13 @@
         v-for="category in categories"
         :key="category.name"
         class="category-chip"
-        :class="{ 'category-chip--active': form.category === category.name }"
+        :class="{ 'category-chip--active': form.category === category.key }"
       >
         <input
           v-model="form.category"
           type="radio"
           name="category"
-          :value="category.name"
+          :value="category.key"
           class="category-chip__input"
           @change="touched.category = true"
         >
@@ -82,7 +82,7 @@
       @blur="touched.amount = true"
     >
 
-    <button type="submit" class="form-card__submit" :disabled="!isFormValid">
+    <button type="submit" class="form-card__submit" :disabled="!isFormValid || props.isSubmitting">
       Добавить новый расход
     </button>
   </form>
@@ -91,23 +91,20 @@
 <script setup lang="ts">
 import { reactive, computed } from "vue";
 
-interface ExpensePayload {
-  description: string;
-  category: string;
-  date: string;
-  amount: number;
-}
+import type { ExpensePayload } from "~/types";
 
 const emit = defineEmits<{ (e: "add", expense: ExpensePayload): void }>();
 
 const categories = [
-  { name: "Еда" },
-  { name: "Транспорт" },
-  { name: "Жилье" },
-  { name: "Развлечения" },
-  { name: "Образование" },
-  { name: "Другое" },
+  { name: "Еда", key: "food" },
+  { name: "Транспорт", key: "transport" },
+  { name: "Жилье", key: "housing" },
+  { name: "Развлечения", key: "joy" },
+  { name: "Образование", key: "education" },
+  { name: "Другое", key: "others" },
 ];
+
+const props = defineProps<{ isSubmitting?: boolean }>();
 
 const form = reactive({
   description: "",
@@ -123,10 +120,17 @@ const touched = reactive({
   amount: false,
 });
 
+const getTodayKey = () => {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+};
+
 const errors = computed(() => ({
-  description: form.description.trim() === "",
+  description: form.description.trim().length < 4,
   category: form.category === "",
-  date: form.date === "",
+  date: form.date === "" || form.date > getTodayKey(),
   amount: form.amount === null || form.amount <= 0,
 }));
 
@@ -141,7 +145,7 @@ const addExpense = () => {
   emit("add", {
     description: form.description,
     category: form.category,
-    date: isoToRu(form.date),
+    date: form.date,
     amount: form.amount,
   });
 

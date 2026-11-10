@@ -40,6 +40,7 @@
       <p v-if="hasError" class="auth__error">
         Упс! Введенные вами данные некорректны. Введите данные корректно и повторите попытку.
       </p>
+      <p v-if="serverError" class="auth__error">{{ serverError }}</p>
 
       <button class="auth__button" type="submit" :disabled="isSubmitDisabled">
         Войти
@@ -54,12 +55,16 @@
 </template>
 
 <script setup lang="ts">
+import { signIn } from '~/api/auth'
+
 const email = ref("");
 const password = ref("");
 const emailTouched = ref(false);
 const passwordTouched = ref(false);
+const serverError = ref("");
+const isSubmitting = ref(false);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 const isEmailValid = computed(() => emailPattern.test(email.value));
 const isPasswordValid = computed(() => password.value.length >= 6);
@@ -74,18 +79,32 @@ const inputClass = (touched: boolean, valid: boolean) => ({
   "auth__input--error": touched && !valid,
 });
 
-const isSubmitDisabled = computed(() => hasError.value);
+const isSubmitDisabled = computed(() => hasError.value || isSubmitting.value);
 
-const onSubmit = () => {
+const onSubmit = async () => {
   emailTouched.value = true;
   passwordTouched.value = true;
+  serverError.value = "";
 
-  if (isSubmitDisabled.value) return;
+  if (hasError.value) return;
 
-  // здесь будет запрос на вход
-  navigateTo("/");
+  isSubmitting.value = true;
+  try {
+    const user = await signIn({
+      login: email.value,
+      password: password.value,
+    });
+    localStorage.setItem("token", user.token);
+    localStorage.setItem("userName", user.name);
+    await navigateTo("/");
+  } catch (error) {
+      serverError.value = error instanceof Error
+        ? error.message
+        : "Неверный логин или пароль";
+    } finally {
+      isSubmitting.value = false;
+    }
 };
-
 </script>
 
 <style scoped>
