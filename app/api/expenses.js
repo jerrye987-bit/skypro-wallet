@@ -20,7 +20,6 @@ async function extractList(data) {
   return null
 }
 
-// Получить список расходов (опционально: сортировка и фильтрация)
 export async function getExpenses({ sortBy, filterBy } = {}) {
   const params = new URLSearchParams()
   if (sortBy) params.set('sortBy', sortBy)
@@ -31,11 +30,9 @@ export async function getExpenses({ sortBy, filterBy } = {}) {
     method: 'GET',
     headers: getAuthHeaders(),
   })
-  // по документации приходит массив; защита на случай обёртки — страховка
   return Array.isArray(data) ? data : data.data || []
 }
 
-// Добавить расход; сервер возвращает обновлённый список транзакций
 export async function addExpense({ description, category, amount, date }) {
   const data = await request(BASE_URL, {
     method: 'POST',
@@ -50,7 +47,7 @@ export async function addExpense({ description, category, amount, date }) {
   return extractList(data)
 }
 
-// Удалить расход; сервер тоже возвращает обновлённый список
+
 export async function deleteExpense(id) {
   const data = await request(`${BASE_URL}/${id}`, {
     method: 'DELETE',
@@ -59,7 +56,6 @@ export async function deleteExpense(id) {
   return extractList(data)
 }
 
-// Серверная запись -> формат для таблицы и графика
 export function mapTransaction(t) {
   return {
     id: t._id,
@@ -70,11 +66,10 @@ export function mapTransaction(t) {
   }
 }
 
-// Сортировка расходов по датам
+
 export const sortByDate = (list) =>
   [...list].sort((a, b) => new Date(b.date) - new Date(a.date))
 
-// Получить транзакции за период (start и end — объекты Date)
 export async function getExpensesByPeriod(start, end) {
   const data = await request(`${BASE_URL}/period`, {
     method: 'POST',

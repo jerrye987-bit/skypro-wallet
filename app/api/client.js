@@ -1,11 +1,8 @@
-// Единый HTTP-клиент для всех запросов к API
-
 export function getAuthHeaders() {
   const token = localStorage.getItem('token')
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-// Сервер может вернуть и { error: "текст" }, и { error: true, message: "текст" }
 function extractErrorMessage(data) {
   if (typeof data?.error === 'string') return data.error
   if (typeof data?.message === 'string') return data.message
@@ -22,7 +19,6 @@ async function handleResponse(response) {
   return data
 }
 
-// Сетевые сбои (нет соединения) → понятное сообщение; остальное — как есть
 export async function request(url, options) {
   try {
     const response = await fetch(url, options)
