@@ -1,3 +1,4 @@
+import { getAuthHeaders, request } from './client'
 import { formatDate, dateToApi, isoDateToApi } from '~/utils/dates'
 
 const BASE_URL = 'https://wedev-api.sky.pro/api/transactions'
@@ -19,19 +20,6 @@ async function extractList(data) {
   return null
 }
 
-function getAuthHeaders() {
-  const token = localStorage.getItem('token')
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
-
-async function handleResponse(response) {
-  const data = await response.json()
-  if (!response.ok) {
-    throw new Error(data.error || 'Что-то пошло не так. Попробуйте позже')
-  }
-  return data
-}
-
 // Получить список расходов (опционально: сортировка и фильтрация)
 export async function getExpenses({ sortBy, filterBy } = {}) {
   const params = new URLSearchParams()
@@ -39,18 +27,17 @@ export async function getExpenses({ sortBy, filterBy } = {}) {
   if (filterBy) params.set('filterBy', filterBy)
   const query = params.toString() ? `?${params}` : ''
 
-  const response = await fetch(`${BASE_URL}${query}`, {
+  const data = await request(`${BASE_URL}${query}`, {
     method: 'GET',
     headers: getAuthHeaders(),
   })
-  const data = await handleResponse(response)
   // по документации приходит массив; защита на случай обёртки — страховка
   return Array.isArray(data) ? data : data.data || []
 }
 
 // Добавить расход; сервер возвращает обновлённый список транзакций
 export async function addExpense({ description, category, amount, date }) {
-  const response = await fetch(BASE_URL, {
+  const data = await request(BASE_URL, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({
@@ -60,18 +47,15 @@ export async function addExpense({ description, category, amount, date }) {
       date: isoDateToApi(date),
     }),
   })
-  const data = await handleResponse(response)
   return extractList(data)
 }
 
-
 // Удалить расход; сервер тоже возвращает обновлённый список
 export async function deleteExpense(id) {
-  const response = await fetch(`${BASE_URL}/${id}`, {
+  const data = await request(`${BASE_URL}/${id}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
   })
-  const data = await handleResponse(response)
   return extractList(data)
 }
 
@@ -88,13 +72,11 @@ export function mapTransaction(t) {
 
 // Сортировка расходов по датам
 export const sortByDate = (list) =>
-  [...list].sort(
-    (a, b) => new Date(b.date) - new Date(a.date),
-  );
+  [...list].sort((a, b) => new Date(b.date) - new Date(a.date))
 
 // Получить транзакции за период (start и end — объекты Date)
 export async function getExpensesByPeriod(start, end) {
-  const response = await fetch(`${BASE_URL}/period`, {
+  const data = await request(`${BASE_URL}/period`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({
@@ -102,7 +84,5 @@ export async function getExpensesByPeriod(start, end) {
       end: dateToApi(end),
     }),
   })
-  const data = await handleResponse(response)
   return extractList(data)
 }
-

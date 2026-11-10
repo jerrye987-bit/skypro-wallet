@@ -57,12 +57,9 @@ const addExpense = async (expense: ExpensePayload) => {
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-    serverError.value =
-      error instanceof TypeError
-        ? "Нет соединения с сервером. Проверьте интернет"
-        : error instanceof Error
-          ? error.message
-          : "Не удалось добавить расход";
+      serverError.value = error instanceof Error
+        ? error.message
+        : "Не удалось добавить расход";
   } finally {
     isSubmitting.value = false;
   }
@@ -80,12 +77,9 @@ const deleteExpense = async (id: string) => {
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-    serverError.value =
-      error instanceof TypeError
-        ? "Нет соединения с сервером. Проверьте интернет"
-        : error instanceof Error
-          ? error.message
-          : "Не удалось удалить расход";
+    serverError.value = error instanceof Error
+      ? error.message
+      : "Не удалось удалить расход";
   } finally {
     deletingId.value = null;
   }
@@ -109,12 +103,9 @@ onMounted(async () => {
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-      serverError.value =
-        error instanceof TypeError
-          ? "Нет соединения с сервером. Проверьте интернет"
-          : error instanceof Error
-            ? error.message
-            : "Не удалось загрузить расходы";
+      serverError.value = error instanceof Error
+        ? error.message
+        : "Не удалось загрузить расходы";
     } finally {
     isLoading.value = false;
   }
