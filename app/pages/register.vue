@@ -86,63 +86,29 @@
 <script setup lang="ts">
 import { signUp } from "~/api/auth";
 
-const name = ref("");
-const email = ref("");
-const password = ref("");
-const nameTouched = ref(false);
-const emailTouched = ref(false);
-const passwordTouched = ref(false);
-const serverError = ref("");
-const isSubmitting = ref(false);
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-
-const isNameValid = computed(() => name.value.trim().length > 0);
-const isEmailValid = computed(() => emailPattern.test(email.value));
-const isPasswordValid = computed(() => password.value.length >= 6);
-
-const nameInvalid = computed(() => nameTouched.value && !isNameValid.value);
-const emailInvalid = computed(() => emailTouched.value && !isEmailValid.value);
-const passwordInvalid = computed(
-  () => passwordTouched.value && !isPasswordValid.value,
+const {
+  name,
+  email,
+  password,
+  nameTouched,
+  emailTouched,
+  passwordTouched,
+  isNameValid,
+  isEmailValid,
+  isPasswordValid,
+  nameInvalid,
+  emailInvalid,
+  passwordInvalid,
+  hasError,
+  inputClass,
+  isSubmitDisabled,
+  serverError,
+  onSubmit,
+} = useAuthForm(
+  (fields) => signUp(fields),
+  "Не удалось зарегистрироваться",
 );
 
-const hasError = computed(
-  () => nameInvalid.value || emailInvalid.value || passwordInvalid.value,
-);
-
-const inputClass = (touched: boolean, valid: boolean) => ({
-  "auth__input--valid": touched && valid,
-  "auth__input--error": touched && !valid,
-});
-
-const isSubmitDisabled = computed(() => hasError.value || isSubmitting.value);
-
-const onSubmit = async () => {
-  nameTouched.value = true;
-  emailTouched.value = true;
-  passwordTouched.value = true;
-  serverError.value = "";
-
-  if (hasError.value) return;
-
-  isSubmitting.value = true;
-  try {
-    const user = await signUp({
-      login: email.value,
-      name: name.value,
-      password: password.value,
-    });
-    localStorage.setItem("token", user.token);
-    localStorage.setItem("userName", user.name);
-    await navigateTo("/");
-  } catch (error) {
-    serverError.value =
-      error instanceof Error ? error.message : "Не удалось зарегистрироваться";
-  } finally {
-    isSubmitting.value = false;
-  }
-};
 </script>
 
 <style scoped>

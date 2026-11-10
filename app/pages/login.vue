@@ -55,56 +55,28 @@
 </template>
 
 <script setup lang="ts">
-import { signIn } from '~/api/auth'
+import { signIn } from "~/api/auth";
 
-const email = ref("");
-const password = ref("");
-const emailTouched = ref(false);
-const passwordTouched = ref(false);
-const serverError = ref("");
-const isSubmitting = ref(false);
+const {
+  email,
+  password,
+  emailTouched,
+  passwordTouched,
+  isEmailValid,
+  isPasswordValid,
+  emailInvalid,
+  passwordInvalid,
+  hasError,
+  inputClass,
+  isSubmitDisabled,
+  serverError,
+  onSubmit,
+} = useAuthForm(
+  ({ login, password: pwd }) => signIn({ login, password: pwd }),
+  "Неверный логин или пароль",
+  { withName: false },
+);
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-
-const isEmailValid = computed(() => emailPattern.test(email.value));
-const isPasswordValid = computed(() => password.value.length >= 6);
-
-const emailInvalid = computed(() => emailTouched.value && !isEmailValid.value);
-const passwordInvalid = computed(() => passwordTouched.value && !isPasswordValid.value);
-
-const hasError = computed(() => emailInvalid.value || passwordInvalid.value);
-
-const inputClass = (touched: boolean, valid: boolean) => ({
-  "auth__input--valid": touched && valid,
-  "auth__input--error": touched && !valid,
-});
-
-const isSubmitDisabled = computed(() => hasError.value || isSubmitting.value);
-
-const onSubmit = async () => {
-  emailTouched.value = true;
-  passwordTouched.value = true;
-  serverError.value = "";
-
-  if (hasError.value) return;
-
-  isSubmitting.value = true;
-  try {
-    const user = await signIn({
-      login: email.value,
-      password: password.value,
-    });
-    localStorage.setItem("token", user.token);
-    localStorage.setItem("userName", user.name);
-    await navigateTo("/");
-  } catch (error) {
-      serverError.value = error instanceof Error
-        ? error.message
-        : "Неверный логин или пароль";
-    } finally {
-      isSubmitting.value = false;
-    }
-};
 </script>
 
 <style scoped>
