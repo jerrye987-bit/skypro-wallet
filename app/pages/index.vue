@@ -7,10 +7,16 @@
         <div class="content">
           <div class="table-wrap">
             <p v-if="isLoading" class="status">Загружаем расходы…</p>
-            <p v-else-if="serverError" class="status status--error">
-              {{ serverError }}
-            </p>
-            <ExpensesTable v-else :expenses="expenses" @delete="deleteExpense" />
+            <template v-else>
+              <p v-if="serverError" class="status status--error">
+                {{ serverError }}
+              </p>
+              <ExpensesTable
+                :expenses="expenses"
+                :deleting-id="deletingId"
+                @delete="deleteExpense"
+              />
+            </template>
           </div>
           <NewExpenseForm :is-submitting="isSubmitting" @add="addExpense" />
         </div>
@@ -33,11 +39,17 @@ import type { Expense, ExpensePayload } from "~/types";
 const isLoading = ref(false);
 const isSubmitting = ref(false);
 
+const deletingId = ref<string | null>(null);
+
 const expenses = ref<Expense[]>([]);
 const serverError = ref("");
 const isAuthed = ref(false);
 
 const addExpense = async (expense: ExpensePayload) => {
+  if (isSubmitting.value) return; 
+
+  serverError.value = ""; 
+
   isSubmitting.value = true;
   try {
     const list = await apiAddExpense(expense);
@@ -45,24 +57,40 @@ const addExpense = async (expense: ExpensePayload) => {
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-    serverError.value = error instanceof Error
-      ? error.message
-      : "Не удалось добавить расход";
+    serverError.value =
+      error instanceof TypeError
+        ? "Нет соединения с сервером. Проверьте интернет"
+        : error instanceof Error
+          ? error.message
+          : "Не удалось добавить расход";
   } finally {
     isSubmitting.value = false;
   }
 };
 
 const deleteExpense = async (id: string) => {
+  if (deletingId.value) return;
+
+  serverError.value = "";
+
+  deletingId.value = id;
   try {
     const list = await apiDeleteExpense(id);
     expenses.value = Array.isArray(list)
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-    serverError.value = error instanceof Error ? error.message : "Не удалось удалить расход";
+    serverError.value =
+      error instanceof TypeError
+        ? "Нет соединения с сервером. Проверьте интернет"
+        : error instanceof Error
+          ? error.message
+          : "Не удалось удалить расход";
+  } finally {
+    deletingId.value = null;
   }
 };
+
 
 onMounted(async () => {
   const savedToken = localStorage.getItem("token");
@@ -72,6 +100,8 @@ onMounted(async () => {
   }
   isAuthed.value = true;
 
+  serverError.value = "";
+
   isLoading.value = true;
   try {
     const list = await getExpenses();
@@ -79,10 +109,13 @@ onMounted(async () => {
       ? sortByDate(list).map(mapTransaction)
       : [];
   } catch (error) {
-    serverError.value = error instanceof Error
-      ? error.message
-      : "Не удалось загрузить расходы";
-  } finally {
+      serverError.value =
+        error instanceof TypeError
+          ? "Нет соединения с сервером. Проверьте интернет"
+          : error instanceof Error
+            ? error.message
+            : "Не удалось загрузить расходы";
+    } finally {
     isLoading.value = false;
   }
 });

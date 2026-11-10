@@ -38,7 +38,10 @@
 <script setup lang="ts">
 import type { Expense } from "~/types";
 
-defineProps<{ expenses: Expense[] }>(); 
+defineProps<{
+  expenses: Expense[];
+  deletingId: string | null;
+}>(); 
 
 const emit = defineEmits<{ (e: "delete", id: string): void }>();
 
