@@ -82,7 +82,11 @@
       @blur="touched.amount = true"
     >
 
-    <button type="submit" class="form-card__submit" :disabled="!isFormValid || props.isSubmitting">
+    <button
+      type="submit"
+      class="form-card__submit"
+      :disabled="!isFormValid || props.isSubmitting"
+    >
       Добавить новый расход
     </button>
   </form>
@@ -120,17 +124,10 @@ const touched = reactive({
   amount: false,
 });
 
-const getTodayKey = () => {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
-};
-
 const errors = computed(() => ({
   description: form.description.trim().length < 4,
   category: form.category === "",
-  date: form.date === "" || form.date > getTodayKey(),
+  date: form.date === "",
   amount: form.amount === null || form.amount <= 0,
 }));
 

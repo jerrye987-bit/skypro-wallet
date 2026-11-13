@@ -32,7 +32,6 @@ const serverError = ref("");
 
 const { selectedRange, selectedDate } = useSelectedDate();
 
-// Определяем границы периода: диапазон из календаря или один день
 const getPeriod = () => {
   if (selectedRange.value.length === 2) {
     const sorted = [...selectedRange.value].sort((a, b) => +a - +b);
@@ -65,7 +64,6 @@ onMounted(async () => {
   await loadPeriod();
 });
 
-// Перевыбрали дату или диапазон в календаре — перезагружаем данные
 watch([selectedRange, selectedDate], loadPeriod);
 </script>
 
@@ -89,7 +87,7 @@ watch([selectedRange, selectedDate], loadPeriod);
 }
 
 .chart-wrap {
-  min-height: 300px; /* держит высоту колонки, чтобы график не прыгал */
+  min-height: 300px;
 }
 
 .status {

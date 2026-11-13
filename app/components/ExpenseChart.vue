@@ -26,7 +26,6 @@ const props = defineProps<{ expenses: Expense[] }>();
 
 const { selectedRange, selectedDate } = useSelectedDate();
 
-// Данные уже за выбранный период — просто суммируем по категориям
 const sums = computed(() => {
   const result: Record<string, number> = {};
   for (const cat of categories) result[cat.name] = 0;

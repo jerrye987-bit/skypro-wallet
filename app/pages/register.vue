@@ -86,218 +86,39 @@
 <script setup lang="ts">
 import { signUp } from "~/api/auth";
 
-const name = ref("");
-const email = ref("");
-const password = ref("");
-const nameTouched = ref(false);
-const emailTouched = ref(false);
-const passwordTouched = ref(false);
-const serverError = ref("");
-const isSubmitting = ref(false);
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-
-const isNameValid = computed(() => name.value.trim().length > 0);
-const isEmailValid = computed(() => emailPattern.test(email.value));
-const isPasswordValid = computed(() => password.value.length >= 6);
-
-const nameInvalid = computed(() => nameTouched.value && !isNameValid.value);
-const emailInvalid = computed(() => emailTouched.value && !isEmailValid.value);
-const passwordInvalid = computed(
-  () => passwordTouched.value && !isPasswordValid.value,
+const {
+  name,
+  email,
+  password,
+  nameTouched,
+  emailTouched,
+  passwordTouched,
+  isNameValid,
+  isEmailValid,
+  isPasswordValid,
+  nameInvalid,
+  emailInvalid,
+  passwordInvalid,
+  hasError,
+  inputClass,
+  isSubmitDisabled,
+  serverError,
+  onSubmit,
+} = useAuthForm(
+  (fields) => signUp(fields),
+  "Не удалось зарегистрироваться",
 );
 
-const hasError = computed(
-  () => nameInvalid.value || emailInvalid.value || passwordInvalid.value,
-);
-
-const inputClass = (touched: boolean, valid: boolean) => ({
-  "auth__input--valid": touched && valid,
-  "auth__input--error": touched && !valid,
-});
-
-const isSubmitDisabled = computed(() => hasError.value || isSubmitting.value);
-
-const onSubmit = async () => {
-  nameTouched.value = true;
-  emailTouched.value = true;
-  passwordTouched.value = true;
-  serverError.value = "";
-
-  if (hasError.value) return;
-
-  isSubmitting.value = true;
-  try {
-    const user = await signUp({
-      login: email.value,
-      name: name.value,
-      password: password.value,
-    });
-    localStorage.setItem("token", user.token);
-    localStorage.setItem("userName", user.name);
-    await navigateTo("/");
-  } catch (error) {
-    serverError.value =
-      error instanceof Error ? error.message : "Не удалось зарегистрироваться";
-  } finally {
-    isSubmitting.value = false;
-  }
-};
 </script>
 
 <style scoped>
-.auth {
-  min-height: 100vh;
-  background: #f5f5f5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.auth__logo {
-  width: 100%;
-  padding: 23px 120px 22px;
-  background: #fff;
-  display: flex;
-  align-items: center;
-}
-
-.auth__logo img {
-  height: 19px;
-}
+@import "~/assets/css/auth.css";
 
 .auth__card {
   margin-top: 143px;
-  width: 379px;
-  background: #fff;
-  border-radius: 30px;
-  padding: 32px 32px 32px 33px;
-  box-shadow: 0px 20px 67px -12px #00000021;
-  display: flex;
-  flex-direction: column;
-}
-
-.auth__title {
-  font-size: 24px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.auth__input {
-  width: 100%;
-  height: 39px;
-  padding: 0 12px;
-  margin-bottom: 12px;
-  border: 0.5px solid #999999;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #000;
-  outline: none;
-}
-
-.auth__input::placeholder {
-  color: #999;
-}
-
-.auth__input.auth__input--error {
-  border-color: #f25050;
-  background-color: #ffebeb;
-}
-.auth__input.auth__input--error::placeholder {
-  color: #f25050;
-}
-
-.auth__input--valid {
-  border-color: #7334ea;
-  background: #f1ebfd;
-}
-
-.auth__error {
-  font-size: 12px;
-  color: #f84d4d;
-  line-height: 150%;
-  letter-spacing: -1%;
 }
 
 .auth__button {
-  margin-top: 12px;
-  margin-bottom: 24px;
-  height: 39px;
-  border: none;
-  border-radius: 6px;
-  background: #7334ea;
-  color: #fff;
   font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.auth__button:hover {
-  background: #7334ea;
-}
-
-.auth__button:disabled {
-  background: #999999;
-  cursor: not-allowed;
-}
-
-.auth__hint {
-  margin-top: 0;
-  font-size: 12px;
-  line-height: 150%;
-  color: #999;
-  text-align: center;
-}
-
-.auth__link {
-  margin-top: 6px;
-  font-size: 12px;
-  line-height: 150%;
-  color: #999;
-  text-align: center;
-  text-decoration: underline;
-}
-
-.auth__field {
-  position: relative;
-}
-
-.auth__star-layer {
-  position: absolute;
-  inset: 0;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.auth__star-ghost {
-  visibility: hidden;
-  white-space: pre;
-}
-
-.auth__star {
-  color: #f84d4d;
-  margin-left: 5px;
-  transform: translateY(-10px);
-}
-
-.auth__input:-webkit-autofill,
-.auth__input:-webkit-autofill:hover,
-.auth__input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 60px #f1ebfd inset;
-  -webkit-text-fill-color: #000;
-}
-
-.auth__input.auth__input--valid:-webkit-autofill,
-.auth__input.auth__input--valid:-webkit-autofill:hover,
-.auth__input.auth__input--valid:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 60px #f1ebfd inset;
-  -webkit-text-fill-color: #000;
-  border-color: #7334ea;
 }
 </style>
